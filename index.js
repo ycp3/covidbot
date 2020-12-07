@@ -13,7 +13,7 @@ var isProvince = false;
 var isRegion = false;
 var prov = require("./variables.js");
 
-bot.login("Nzg0OTI3NzM3MDcyNDUxNjA1.X8wa6w.RyHcIhvAKoEsMhwH_AUZhX0Ggls");
+bot.login("YOUR_BOT_TOKEN");
 
 bot.on("ready", () => {
     console.log("Logged in as " + bot.user.tag)
