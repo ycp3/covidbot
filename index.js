@@ -10,7 +10,7 @@ var url;
 var country;
 var settings = { method: "Get" };
 var isProvince = false;
-
+var isRegion = false;
 var prov = require("./variables.js");
 
 bot.login("Nzg0OTI3NzM3MDcyNDUxNjA1.X8wa6w.RyHcIhvAKoEsMhwH_AUZhX0Ggls");
@@ -32,7 +32,17 @@ bot.on("message", (msg) => {
                 location = prov.prov[key];
                 isProvince = true;
             }
-        } if (isProvince) {
+        }
+        for (var key in prov.regions) {
+            if (location_raw.toLowerCase() === key) {
+                location = prov.regions[key];
+                isRegion = true;
+            }
+        }
+
+
+
+        if (isProvince) {
 
             fetch("https://api.opencovid.ca/summary?loc=" + location, settings)
                 .then(res => res.json())
@@ -49,17 +59,17 @@ bot.on("message", (msg) => {
                         .addFields(
                             { name: "Total Active Cases: ", value: json.summary[0].active_cases },
                             //{ name: '\u200B', value: '\u200B' },
-                            { name: "New Cases: ", value: json.summary[0].cases, inline: true  },
-                            { name: "Deaths Today: ", value: json.summary[0].deaths, inline: true  },
-                            { name: "Recovered Today: ", value: json.summary[0].recovered, inline: true  },
+                            { name: "New Cases: ", value: json.summary[0].cases, inline: true },
+                            { name: "Deaths Today: ", value: json.summary[0].deaths, inline: true },
+                            { name: "Recovered Today: ", value: json.summary[0].recovered, inline: true },
                             //{ name: '\u200B', value: '\u200B' },
                             { name: "Cumulative Cases: ", value: json.summary[0].cumulative_cases, inline: true },
-                            { name: "Cumulative Deaths: ", value: json.summary[0].cumulative_deaths, inline: true  },
-                            { name: "Cumulative Recovered: ", value: json.summary[0].cumulative_recovered, inline: true  },
+                            { name: "Cumulative Deaths: ", value: json.summary[0].cumulative_deaths, inline: true },
+                            { name: "Cumulative Recovered: ", value: json.summary[0].cumulative_recovered, inline: true },
                             //{ name: '\u200B', value: '\u200B' },
-                            { name: "Tested Today: ", value: json.summary[0].testing , inline: true },
-                            { name: "Cumulative Testing: ", value: json.summary[0].cumulative_testing, inline: true  },
-                            { name: "Net Change: ", value: json.summary[0].active_cases_change, inline: true  })
+                            { name: "Tested Today: ", value: json.summary[0].testing, inline: true },
+                            { name: "Cumulative Testing: ", value: json.summary[0].cumulative_testing, inline: true },
+                            { name: "Net Change: ", value: json.summary[0].active_cases_change, inline: true })
                         //.setImage('https://i.imgur.com/ljwubJw.png')
                         .setTimestamp()
                         .setFooter('Data recieved on: ' + json.summary[0].date, 'https://i.imgur.com/v1dWZCo.png');
@@ -85,7 +95,41 @@ bot.on("message", (msg) => {
                 .catch(function () { //Catching error message
                     msg.channel.send("Invalid location");
                 });
-
+        } else if (isRegion) {
+            fetch("https://api.opencovid.ca/summary?loc=" + location, settings)
+                .then(res => res.json())
+                .then((json) => {
+                    // do something with JSON
+                    //START OF EMBED
+                    const casesEmbed = new Discord.MessageEmbed()
+                        .setColor('#ab15f1')
+                        .setTitle('COVID-19 Statistics')
+                        //	.setURL('https://discord.js.org/')
+                        .setAuthor('HackCamp Nooblords', 'https://i.imgur.com/e9ALu9R.png')//, 'https://discord.js.org'*/)
+                        .setDescription('COVID-19 in Health Region ' + location_raw.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.substring(1)).join(' '))
+                        .setThumbnail('https://i.imgur.com/czBOobl.png')
+                        .addFields(
+                            { name: "New Cases Today: ", value: json.summary[0].cases },
+                            //{ name: '\u200B', value: '\u200B' },
+                            //{ name: "New Cases: ", value: json.summary[0].cases, inline: true  },
+                            { name: "Deaths Today: ", value: json.summary[0].deaths },
+                            //{ name: "Recovered Today: ", value: json.summary[0].recovered, inline: true  },
+                            //{ name: '\u200B', value: '\u200B' },
+                            { name: "Cumulative Cases: ", value: json.summary[0].cumulative_cases, inline: true },
+                            { name: "Cumulative Deaths: ", value: json.summary[0].cumulative_deaths, inline: true })
+                            //{ name: "Cumulative Recovered: ", value: json.summary[0].cumulative_recovered, inline: true  },
+                            //{ name: '\u200B', value: '\u200B' },
+                            //{ name: "Tested Today: ", value: json.summary[0].testing , inline: true },
+                            //{ name: "Cumulative Testing: ", value: json.summary[0].cumulative_testing, inline: true  },
+                            //{ name: "Net Change: ", value: json.summary[0].active_cases_change, inline: true  })
+                        //.setImage('https://i.imgur.com/ljwubJw.png')
+                        .setTimestamp()
+                        .setFooter('Data recieved on: ' + json.summary[0].date, 'https://i.imgur.com/v1dWZCo.png');
+                    msg.channel.send(casesEmbed);
+                })
+                .catch(function () { //Catching error message
+                    msg.channel.send("Invalid location");
+                });
         } else {
             fetch("https://api.opencovid.ca/summary?loc=" + location_raw, settings)
                 .then(res => res.json())
@@ -101,17 +145,17 @@ bot.on("message", (msg) => {
                         .addFields(
                             { name: "Total Active Cases: ", value: json.summary[0].active_cases },
                             //{ name: '\u200B', value: '\u200B' },
-                            { name: "New Cases: ", value: json.summary[0].cases, inline: true  },
-                            { name: "Deaths Today: ", value: json.summary[0].deaths, inline: true  },
-                            { name: "Recovered Today: ", value: json.summary[0].recovered, inline: true  },
+                            { name: "New Cases: ", value: json.summary[0].cases, inline: true },
+                            { name: "Deaths Today: ", value: json.summary[0].deaths, inline: true },
+                            { name: "Recovered Today: ", value: json.summary[0].recovered, inline: true },
                             //{ name: '\u200B', value: '\u200B' },
                             { name: "Cumulative Cases: ", value: json.summary[0].cumulative_cases, inline: true },
-                            { name: "Cumulative Deaths: ", value: json.summary[0].cumulative_deaths, inline: true  },
-                            { name: "Cumulative Recovered: ", value: json.summary[0].cumulative_recovered, inline: true  },
+                            { name: "Cumulative Deaths: ", value: json.summary[0].cumulative_deaths, inline: true },
+                            { name: "Cumulative Recovered: ", value: json.summary[0].cumulative_recovered, inline: true },
                             //{ name: '\u200B', value: '\u200B' },
-                            { name: "Tested Today: ", value: json.summary[0].testing , inline: true },
-                            { name: "Cumulative Testing: ", value: json.summary[0].cumulative_testing, inline: true  },
-                            { name: "Net Change: ", value: json.summary[0].active_cases_change, inline: true  })
+                            { name: "Tested Today: ", value: json.summary[0].testing, inline: true },
+                            { name: "Cumulative Testing: ", value: json.summary[0].cumulative_testing, inline: true },
+                            { name: "Net Change: ", value: json.summary[0].active_cases_change, inline: true })
                         //.setImage('https://i.imgur.com/ljwubJw.png')
                         .setTimestamp()
                         .setFooter('Data recieved on: ' + json.summary[0].date, 'https://i.imgur.com/v1dWZCo.png');
@@ -133,6 +177,7 @@ bot.on("message", (msg) => {
                 });
         }
         isProvince = false;
+        inRegion = false;
     }
 
 
